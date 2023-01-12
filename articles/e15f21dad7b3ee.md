@@ -32,12 +32,26 @@ PlanetScaleでは「Branching」という機能を使うことで、gitのブラ
 2. development branch上のDBに対して、カラムの削除やテーブルの追加などのスキーマの変更を行います。
 3. アプリケーションなどからdevelopment branch上のDBを操作し、問題なく動作するかを確認します。
 4. 「deploy request」を作成します。
-5. 
-6. 
-7. 
-8. 
+5. PlanetScaleは、deploy requestの開発スキーマと本番スキーマとを比較してスキーマ差分を作成します。スキーマ差分を作成することによって、どのような変更が行われるか、デプロイ可能な要求かどうか（ユニークキーが欠落していないか、などのスキーマの問題点がないかどうかなど）を知ることができます。
+6. 開発チームはdeploy requestを確認し、デプロイを承認します。
+7. PlanetScaleが新しいスキーマのDBをデプロイ開始します。
+8. このデプロイはダウンタイムがゼロになるような方法で実施されるため、テーブルがロックされたり、移行中に本番環境が遅くなるなどの問題が起こることはありません。
+
+```mermaid
+sequenceDiagram
+  production->>development: development branchを作成
+  development->>development: スキーマの変更
+  development->>development: deploy requestの作成
+  development->>development: スキーマのコンフリクトを解消
+  development->>development: 動作確認
+  development->>production: デプロイ
+```
+
+詳細は[こちら](https://planetscale.com/docs/concepts/branching)。
 
 ### Prismaの[Prisma Migrate](https://www.prisma.io/docs/concepts/components/prisma-migrate)
+
+<!-- TODO: https://www.prisma.io/docs/concepts/components/prisma-migrate/mental-model#how-prisma-migrate-tracks-the-migration-state -->
 
 ## PrismaでPlanetScaleのDBスキーマを変更するには
 
