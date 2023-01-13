@@ -55,6 +55,13 @@ sequenceDiagram
 
 ## PrismaでPlanetScaleのDBスキーマを変更するには
 
+Prisma Migrateは、DBスキーマの状態を追跡するために次の情報を使います
+
+- **prismaのスキーマ**
+- **マイグレーション履歴**
+- **`prisma_migrations`テーブル**
+- **DBスキーマ**
+
 ## 参考
 
 <https://planetscale.com/docs/concepts/branching>
