@@ -53,10 +53,26 @@ sequenceDiagram
 
 Prisma Migrateは、データベーススキーマの状態を追跡するために次の情報を使います
 
-- **prismaのスキーマ** … `schema.prisma`のことで、データベーススキーマの構造を定義するsource of truthです
-- **マイグレーション履歴** … `prisma/migrations`フォルダーにあるSQLファイルのことで、データベーススキーマの変更履歴を表します
-- **`prisma_migrations`テーブル** … データベースにある`prisma_migrations`テーブルのことで、データベースに適用されたマイグレーションのメタデータを格納します
-- **データベーススキーマ** … データベースの実際の状態のことです
+- **prismaのスキーマ** … `schema.prisma`のことで、データベーススキーマの構造を定義するsource of truthです。
+- **マイグレーション履歴** … `prisma/migrations`フォルダーにあるSQLファイルのことで、データベーススキーマの変更履歴を表します。
+- **`prisma_migrations`テーブル** … データベースにある`prisma_migrations`テーブルのことで、データベースに適用されたマイグレーションのメタデータを格納します。
+- **データベーススキーマ** … データベースの実際の状態のことです。
+
+本番用データベースのスキーマを変更するときは、以下の手順で作業を実施します。
+
+1. prismaのスキーマを更新します。
+2. `prisma migrate dev`もしくは`prisma db push`コマンドを実行します。
+3. `prisma migrate dev`コマンドを実行した場合、マイグレーション履歴と`prisma_migrations`テーブルが更新されます。
+4. たとえばGitHubでコードのバージョン管理を行っている場合、prismaのスキーマやマイグレーション履歴などの変更のプルリクエストを作成します。
+5. GitHub ActionsなどのCIシステムを利用して、スキーマ等の変更をトリガーに、`prisma migrate deploy`コマンドを実行します。
+6. `prisma migrate deploy`コマンドにより、prismaのスキーマやマイグレーション履歴から、プレビュー用データベースのデータベーススキーマが更新されます。
+7. プルリクエストのマージをトリガーにして、CIシステムで`prisma migrate deploy`コマンドを実行します
+8. `prisma migrate deploy`コマンドにより、prismaのスキーマやマイグレーション履歴から、本番用データベースのデータベーススキーマが更新されます。
+
+```mermaid
+sequenceDiagram
+  
+```
 
 <!-- TODO: https://www.prisma.io/docs/concepts/components/prisma-migrate/mental-model#what-is-prisma-migrate -->
 
