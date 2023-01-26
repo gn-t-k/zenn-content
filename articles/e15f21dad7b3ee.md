@@ -37,15 +37,7 @@ PlanetScaleでは「Branching」という機能を使うことで、gitのブラ
 7. PlanetScaleが新しいスキーマのデータベースをデプロイ開始します。
 8. このデプロイはダウンタイムがゼロになるような方法で実施されるため、テーブルがロックされたり、移行中に本番環境が遅くなるなどの問題が起こることはありません。
 
-```mermaid
-sequenceDiagram
-  production->>development: development branchを作成
-  development->>development: スキーマの変更
-  development->>development: deploy requestの作成
-  development->>development: スキーマのコンフリクトを解消
-  development->>development: 動作確認
-  development->>production: デプロイ
-```
+![PlanetScaleのBlanchingのイメージ図](https://planetscale-images.imgix.net/docs/concepts/branching/diagram.png?auto=compress%2Cformat)
 
 詳細は[こちら](https://planetscale.com/docs/concepts/branching)。
 
@@ -69,14 +61,15 @@ Prisma Migrateは、データベーススキーマの状態を追跡するため
 7. プルリクエストのマージをトリガーにして、CIシステムで`prisma migrate deploy`コマンドを実行します
 8. `prisma migrate deploy`コマンドにより、prismaのスキーマやマイグレーション履歴から、本番用データベースのデータベーススキーマが更新されます。
 
-```mermaid
-sequenceDiagram
-  
-```
+![PrismaのPrisma Migrateのイメージ図](https://www.prisma.io/docs/static/19181e590d4e9235f167f8ab7422a6c8/663f3/prisma-migrate-lifecycle.png)
 
-<!-- TODO: https://www.prisma.io/docs/concepts/components/prisma-migrate/mental-model#what-is-prisma-migrate -->
+詳細は[こちら](https://www.prisma.io/docs/concepts/components/prisma-migrate/mental-model#what-is-prisma-migrate)
 
 ## PrismaでPlanetScaleのDBスキーマを変更するには
+
+PlanetScaleは開発ブランチを本番ブランチにマージするとき自動的に独自のスキーマ差分を生成し、独自のマイグレーション履歴管理を行います。PrismaもSQLファイルや`prisma_migrations`テーブルを使って独自のマイグレーション履歴管理を行います。
+
+Prismaが管理するSQLファイルや`prisma_migrations`テーブルには、PlanetScaleが生成するスキーマ差分の情報は反映されません。逆に、PlanetScaleが生成するスキーマ差分にもPrismaが管理するSQLファイルや`prisma_migrations`テーブルの情報は含まれません。つまり、PlanetScaleもPrismaもそれぞれ独自のマイグレーション履歴管理方法を持っているため、それらを両立することはできません。
 
 <!-- TODO: https://www.prisma.io/docs/guides/database/using-prisma-with-planetscale -->
 
