@@ -4,6 +4,7 @@ emoji: "🌏"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["planetscale", "prisma"]
 published: true
+publication_name: "praha"
 ---
 
 個人開発でPlanetScaleとPrismaを使用していて、これらを組み合わせて使う上で調べたことをまとめました。
