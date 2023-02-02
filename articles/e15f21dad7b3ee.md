@@ -3,10 +3,15 @@ title: "PlanetScaleでは`prisma migrate`は使わない"
 emoji: "🌏"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["planetscale", "prisma"]
-published: false
+published: true
 ---
 
+個人開発でPlanetScaleとPrismaを使用していて、これらを組み合わせて使う上で調べたことをまとめました。
+
 ## TL;DR
+
+- PlanetScaleとPrismaを併用する場合、スキーマ変更はPlanetScaleに任せる
+- `prisma migrate`は使わず、`prisma db push`を使う
 
 ## PlanetScaleとPrismaについて
 
@@ -18,13 +23,13 @@ Prismaは、Node.jsとTypeScriptのためのORMです。宣言的なデータモ
 
 この記事では、PlanetScaleとPrismaを組み合わせて使うときのデータベーススキーマのマイグレーションの方法について紹介します。
 
-## 前提
+## それぞれのスキーママイグレーションの仕組み
 
 PlanetScaleとPrismaは、それぞれ別のデータベーススキーマのマイグレーションのための仕組みを持っています。
 
-### PlanetScaleの[Branching](https://planetscale.com/docs/concepts/branching)
+### PlanetScaleのBranching
 
-PlanetScaleでは「Branching」という機能を使うことで、gitのブランチ機能に近い感覚で、「ブランチ」を作ってデータベーススキーマを分岐させることができます。
+PlanetScaleでは[Branching](https://planetscale.com/docs/concepts/branching)という機能を使うことで、gitのブランチ機能に近い感覚で、「ブランチ」を作ってデータベーススキーマを分岐させることができます。
 
 本番用のデータベーススキーマを変更する必要がある場合、以下の手順で作業を実施します。
 
@@ -41,9 +46,9 @@ PlanetScaleでは「Branching」という機能を使うことで、gitのブラ
 
 詳細は[こちら](https://planetscale.com/docs/concepts/branching)。
 
-### Prismaの[Prisma Migrate](https://www.prisma.io/docs/concepts/components/prisma-migrate)
+### PrismaのPrisma Migrate
 
-Prisma Migrateは、データベーススキーマの状態を追跡するために次の情報を使います
+[Prisma Migrate](https://www.prisma.io/docs/concepts/components/prisma-migrate)は、データベーススキーマの状態を追跡するために次の情報を使います
 
 - **prismaのスキーマ** … `schema.prisma`のことで、データベーススキーマの構造を定義するsource of truthです。
 - **マイグレーション履歴** … `prisma/migrations`フォルダーにあるSQLファイルのことで、データベーススキーマの変更履歴を表します。
@@ -67,14 +72,39 @@ Prisma Migrateは、データベーススキーマの状態を追跡するため
 
 ## PrismaでPlanetScaleのDBスキーマを変更するには
 
-PlanetScaleは開発ブランチを本番ブランチにマージするとき自動的に独自のスキーマ差分を生成し、独自のマイグレーション履歴管理を行います。PrismaもSQLファイルや`prisma_migrations`テーブルを使って独自のマイグレーション履歴管理を行います。
+PlanetScaleは開発ブランチを本番ブランチにマージするとき自動的に独自のスキーマ差分を生成し、独自のマイグレーション履歴管理を行います。PrismaはSQLファイルや`prisma_migrations`テーブルを使って独自のマイグレーション履歴管理を行います。
 
-Prismaが管理するSQLファイルや`prisma_migrations`テーブルには、PlanetScaleが生成するスキーマ差分の情報は反映されません。逆に、PlanetScaleが生成するスキーマ差分にもPrismaが管理するSQLファイルや`prisma_migrations`テーブルの情報は含まれません。つまり、PlanetScaleもPrismaもそれぞれ独自のマイグレーション履歴管理方法を持っているため、それらを両立することはできません。
+Prismaが管理するSQLファイルや`prisma_migrations`テーブルには、PlanetScaleが生成するスキーマ差分の情報は反映されません。また、PlanetScaleが生成するスキーマ差分にもPrismaが管理するSQLファイルや`prisma_migrations`テーブルの情報は含まれません。つまり、PlanetScaleもPrismaもそれぞれ独自のマイグレーション履歴管理方法を持っているため、それらを両立することはできません。
+
+Prismaは、**PlanetScaleでスキーマの変更を行う場合は`prisma migrate`を使用せず、`prisma db push`コマンドを使用する**ことを[推奨しています](https://www.prisma.io/docs/guides/database/using-prisma-with-planetscale#:~:text=Prisma%20recommends%20not%20using%20prisma%20migrate%20when%20making%20schema%20changes%20with%20PlanetScale.%20Instead%2C%20we%20recommend%20that%20you%20use%20the%20prisma%20db%20push%20command.)。
+
+PlanetScaleも、**ダウンタイムにつながるスキーマ変更を防止しつつ変更を適用する責任はPlanetScale側にあり、PlanetScaleといっしょに`prisma migrate`を使用する価値はほとんどない**とし、`prisma db push`コマンドを使用することを[推奨しています](https://planetscale.com/docs/tutorials/automatic-prisma-migrations#:~:text=We%20recommend%20prisma%20db%20push%20over%20prisma%20migrate%20dev%20for%20the%20following%20reasons%3A)。
+
+### 手順
+
+PlanetScaleで`prisma db push`を使用するためには、Prisma Clientで参照エミュレーションを有効にする必要があります。PlanetScaleではデータベーススキーマで外部キーが利用できず、それが関係しているようです。
+
+> To use db push with PlanetScale, you will first need to enable emulation of relations in Prisma Client. Pushing to your branch without referential emulation enabled will give the error message Foreign keys cannot be created on this database.
+
+<https://www.prisma.io/docs/guides/database/using-prisma-with-planetscale#how-to-make-schema-changes-with-db-push>
 
 <!-- TODO: https://www.prisma.io/docs/guides/database/using-prisma-with-planetscale -->
+
+```plaintext
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+```
+
+`schema.prisma`の`relationMode`フィールドを`prisma`に設定することで参照エミュレーションを有効化できます。
+
+あとは、`schema.prisma`に定義してあるデータベーススキーマを変更し、`prisma db push`、PlanetScaleでデプロイリクエストを作成してマージするだけです。もっと詳しい手順が知りたい方は、下記の公式ドキュメントを参照してください。
 
 ## 参考
 
 <https://planetscale.com/docs/concepts/branching>
 <https://www.prisma.io/docs/concepts/components/prisma-migrate/mental-model#what-is-prisma-migrate>
 <https://www.prisma.io/docs/guides/database/using-prisma-with-planetscale>
+<https://planetscale.com/docs/tutorials/automatic-prisma-migrations>
