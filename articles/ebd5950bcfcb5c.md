@@ -4,6 +4,7 @@ emoji: "🐙"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["プロジェクトマネジメント"]
 published: false
+publication_name: "praha"
 ---
 
 株式会社プラハは2022年、株式会社アガルートによるM&Aで子会社となりました。
