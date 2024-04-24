@@ -3,7 +3,7 @@ title: "はじめてのプロジェクトマネジメントでやりたい放題
 emoji: "🐙"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["プロジェクトマネジメント"]
-published: false
+published: true
 publication_name: "praha"
 ---
 
@@ -113,4 +113,4 @@ https://praha.vercel.app/for-external/culture
 
 実際こういうやり方で開発してみてどうだったか？これからどうしていきたいか？を社長にインタビューしてみました。
 
-（公開されたらpodcastのリンク貼る）
+https://open.spotify.com/episode/4KaaDozu9IlcPpf6Roxfva
