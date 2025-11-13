@@ -6,6 +6,9 @@
   "author": "gn-t-k <gntk1995422@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "zenn-cli": "^0.1.158"
+    "@textlint-ja/textlint-rule-preset-ai-writing": "^1.6.1",
+    "textlint": "^15.3.0",
+    "textlint-rule-preset-ja-technical-writing": "^12.0.2",
+    "zenn-cli": "^0.2.10"
   }
 }
