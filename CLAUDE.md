@@ -51,3 +51,4 @@ Zenn CLIを使用して技術記事や本を管理するためのZennコンテ�
 - コンテンツはMarkdownで記述し、コードブロックやZenn固有の記法をサポート
 - 記事は公開前に下書き状態（published: false）にできる
 - 画像は記事IDごとに整理して配置する
+- 狙いワードの選定、公開前の最終決定、公開後の評価や手直しをするときは `docs/article-analytics/README.md` に従う
